@@ -5,6 +5,7 @@ import { virtualHexDocument, messageHandler } from "./hexEdit";
 import { VirtualizedPacket } from "./virtualDocument";
 import { ByteData } from "./byteData";
 import { EditMessage } from "./editHandler";
+import { TagData } from "./tagData";
 
 /**
  * @description BufferOptions type used to describe how many chunks are wanted above and below a given chunk
@@ -59,7 +60,8 @@ export class ChunkHandler {
 				initialOffset: chunkStart,
 				numElements: this.chunkSize
 			});
-			this.processChunks(request.offset, request.data, request.edits, request.fileSize);
+			//const tags: TagData[] = [new TagData(2, 4, "green"), new TagData(7, 7, "blue")];
+			this.processChunks(request.offset, request.data, request.edits, request.fileSize, request.tags);
 		} catch (err) {
 			return;
 		}
@@ -116,7 +118,7 @@ export class ChunkHandler {
 	 * @param {Uint8Array} data The data which was returned back
 	 * @param {number} fileSize The size of the file, this is passed back from the exthost and helps to ensure the webview and exthost sizes are synced
 	 */
-	public processChunks(offset: number, data: Uint8Array, edits: EditMessage[], fileSize: number): void {
+	public processChunks(offset: number, data: Uint8Array, edits: EditMessage[], fileSize: number, tags: TagData[]): void {
 		const packets: VirtualizedPacket[] = [];
 		for (let i = 0; i < data.length; i++) {
 			// If it's a chunk boundary we want to make sure we're tracking that chunk
@@ -142,7 +144,7 @@ export class ChunkHandler {
 				data: new ByteData(0)
 			});
 		}
-		virtualHexDocument.render(packets);
+		virtualHexDocument.render(packets, tags);
 		virtualHexDocument.redo(edits, fileSize);
 	}
 

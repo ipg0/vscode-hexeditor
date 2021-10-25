@@ -11,6 +11,7 @@ import { WebviewStateManager } from "./webviewStateManager";
 import { SelectHandler } from "./selectHandler";
 import { SearchHandler } from "./searchHandler";
 import { DataInspectorHandler } from "./dataInspectorHandler";
+import { TagData } from "./tagData";
 
 export interface VirtualizedPacket {
 	offset: number;
@@ -50,7 +51,6 @@ export class VirtualDocument {
 		(document.getElementsByClassName("header")[2] as HTMLElement).style.width = "16rem";
 		this.documentHeight = 500000;
 		this.rows = [];
-
 		// Initial row holders for the three columns
 		for (let i = 0; i < 3; i++) {
 			this.rows.push(new Map<string, HTMLDivElement>());
@@ -77,7 +77,7 @@ export class VirtualDocument {
 	 * @description Renders the newly provided packets onto the DOM
 	 * @param {VirtualizedPacket[]} newPackets the packets which will be rendered
 	 */
-	public render(newPackets: VirtualizedPacket[]): void {
+	public render(newPackets: VirtualizedPacket[], tags: TagData[]): void {
 		let rowData: VirtualizedPacket[] = [];
 		const addrFragment = document.createDocumentFragment();
 		const hexFragment = document.createDocumentFragment();
@@ -85,14 +85,25 @@ export class VirtualDocument {
 		// Construct rows of 16 and add them to the associated fragments
 		for (let i = 0; i < newPackets.length; i++) {
 			rowData.push(newPackets[i]);
-			if (i === newPackets.length - 1 || rowData.length == 16) {
+			if (i === newPackets.length - 1 || rowData.length == 16) { 
+				// Is there any fucking way this is not the case?
+				// I am confused as fuck. What even is this?
+				// Upd: It pushes bytes into rowData until it is either 16 bytes long
+				// or reached the end of file. I'll try to make it 17 bytes long instead.
+				// It kind of fucked up at 17, though it sort of did what it was supposed to do.
+				// I am gonna make it color specific bytes green.
+				// passing i as argument for the populate to figure it out.
 				if (!this.rows[0].get(rowData[0].offset.toString())) {
 					this.populateHexAdresses(addrFragment, rowData);
-					this.populateHexBody(hexFragment, rowData);
-					this.populateAsciiTable(asciiFragment, rowData);
+					// yep, here it is, we need to implement the fucking tag assignment somehow.
+					this.populateHexBody(hexFragment, rowData, tags);
+					// will also be helpful to highlight the corresponding tags in ascii, 
+					// but that's a whole another clusterfuck for later to deal with
+					this.populateAsciiTable(asciiFragment, rowData, tags);
 				}
 				rowData = [];
 			}
+			
 		}
 
 		// Render the fragments to the DOM
@@ -230,12 +241,12 @@ export class VirtualDocument {
 	 * @param {DocumentFragment} fragment The fragment which elements get added to
 	 * @param {VirtualizedPacket[]} rowData An array of 16 bytes representing one row
 	 */
-	private populateAsciiTable(fragment: DocumentFragment, rowData: VirtualizedPacket[]): void {
+	private populateAsciiTable(fragment: DocumentFragment, rowData: VirtualizedPacket[], tags: TagData[]): void {
 		const row = document.createElement("div");
 		row.className = "row";
 		const rowOffset = rowData[0].offset.toString();
 		for (let i = 0; i < rowData.length; i++) {
-			const ascii_element = this.createAsciiElement(rowData[i]);
+			const ascii_element = this.createAsciiElement(rowData[i], tags);
 			row.appendChild(ascii_element);
 		}
 		fragment.appendChild(row);
@@ -248,12 +259,14 @@ export class VirtualDocument {
 	 * @param {DocumentFragment} fragment The fragment which elements get added to
 	 * @param {VirtualizedPacket[]} rowData An array of 16 bytes representing one row
 	 */
-	private populateHexBody(fragment: DocumentFragment, rowData: VirtualizedPacket[]): void {
+
+	// here is the method that renders the hex values, so now we'll just have to add some colors to tagged pieces.
+	private populateHexBody(fragment: DocumentFragment, rowData: VirtualizedPacket[], tags: TagData[]): void {
 		const row = document.createElement("div");
 		row.className = "row";
 		const rowOffset = rowData[0].offset.toString();
 		for (let i = 0; i < rowData.length; i++) {
-			const hex_element = this.createHexElement(rowData[i]);
+			const hex_element = this.createHexElement(rowData[i], tags);
 			row.appendChild(hex_element);
 		}
 		fragment.appendChild(row);
@@ -266,10 +279,16 @@ export class VirtualDocument {
 	 * @param {VirtualizedPacket} packet The VirtualizedPacket holding the data needed to generate the element
 	 * @returns {HTMLSpanElement} The html span element ready to be added to the DOM
 	 */
-	private createHexElement(packet: VirtualizedPacket): HTMLSpanElement {
+	private createHexElement(packet: VirtualizedPacket, tags: TagData[]): HTMLSpanElement {
 		const hex_element = document.createElement("span");
 		hex_element.classList.add("hex");
 		hex_element.classList.add(`cell-offset-${packet.offset.toString()}`);
+		for(let i = 0; i < tags.length; i++) {
+			if(tags[i].from <= packet.offset &&
+				tags[i].to >= packet.offset) {
+					hex_element.style.backgroundColor = tags[i].color; // this is not optimized yet
+			}
+		}
 		// If the offset is greater than or equal to fileSize that's our placeholder so it's just a + symbol to signal you can type and add bytes there
 		if (packet.offset < this.fileSize) {
 			hex_element.innerText = pad(packet.data.toHex(), 2);
@@ -287,10 +306,16 @@ export class VirtualDocument {
 	 * @param {VirtualizedPacket} packet The VirtualizedPacket holding the data needed to generate the element
 	 * @returns {HTMLSpanElement} The html span element ready to be added to the DOM
 	 */
-	private createAsciiElement(packet: VirtualizedPacket): HTMLSpanElement {
+	private createAsciiElement(packet: VirtualizedPacket, tags: TagData[]): HTMLSpanElement {
 		const ascii_element = document.createElement("span");
 		ascii_element.classList.add(`cell-offset-${packet.offset.toString()}`);
 		ascii_element.classList.add("ascii");
+		for(let i = 0; i < tags.length; i++) {
+			if(tags[i].from <= packet.offset &&
+				tags[i].to >= packet.offset) {
+					ascii_element.style.backgroundColor = tags[i].color; // this is not optimized yet
+			}
+		}
 		// If the offset is greater than or equal to fileSize that's our placeholder so it's just a + symbol to signal you can type and add bytes there
 		if (packet.offset < this.fileSize) {
 			updateAsciiValue(packet.data, ascii_element);
@@ -614,15 +639,15 @@ export class VirtualDocument {
 			data: new ByteData(0)
 		};
 		if (this.fileSize % 16 === 0) {
-			this.render([packet]);
+			this.render([packet], []);
 			// If it's a new chunk we want the chunkhandler to track it
 			if (this.fileSize % chunkHandler.chunkSize === 0) {
 				chunkHandler.addChunk(this.fileSize);
 			}
 			this.scrollBarHandler.updateScrollBar(this.fileSize / 16);
 		} else {
-			const hex_element = this.createHexElement(packet);
-			const ascii_element = this.createAsciiElement(packet);
+			const hex_element = this.createHexElement(packet, []);
+			const ascii_element = this.createAsciiElement(packet, []);
 			const elements = getElementsWithGivenOffset(this.fileSize - 1);
 			elements[0].parentElement?.appendChild(hex_element);
 			elements[1].parentElement?.appendChild(ascii_element);

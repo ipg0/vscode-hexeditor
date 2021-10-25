@@ -9,6 +9,7 @@ import { getNonce } from "./util";
 import TelemetryReporter from "vscode-extension-telemetry";
 import { SearchResults } from "./searchRequest";
 import { DataInspectorView } from "./dataInspectorView";
+import { TagsHandler } from "./tagsHandler";
 
 interface PacketRequest {
 	initialOffset: number;
@@ -296,7 +297,8 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 						baseAddress: document.baseAddress,
 						data: packet,
 						offset: request.initialOffset,
-						edits: edits
+						edits: edits,
+						tags: await document.tagsHandler.retrieveTags()
 					}
 				});
 				return;
@@ -342,6 +344,7 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 			case "dataInspector":
 				// This message was meant for the data inspector view so we forward it there
 				this._dataInspectorView.handleEditorMessage(message.body);
+				return;
 		}
 	}
 }

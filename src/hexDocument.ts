@@ -6,6 +6,7 @@ import { Disposable } from "./dispose";
 import TelemetryReporter from "vscode-extension-telemetry";
 import { SearchProvider } from "./searchProvider";
 import { FileSystemAdaptor } from "./fileSystemAdaptor";
+import { TagsHandler } from "./tagsHandler";
 
 /**
  * @description Helper function to compare two arrays
@@ -57,6 +58,7 @@ export class HexDocument extends Disposable implements vscode.CustomDocument {
 		const maxFileSize = (vscode.workspace.getConfiguration().get("hexeditor.maxFileSize") as number) * 1000000;
 		let unsavedEdits: HexDocumentEdit[][] = [];
 		// If there's a backup the user already hit open anyways so we will open it even if above max file size
+		const tagsHandler = await TagsHandler.create(vscode.Uri.file(dataFile.path + ".tags"));
 		if (fileSize > maxFileSize && !backupId) {
 			fileData = new Uint8Array();
 		} else {
@@ -66,7 +68,7 @@ export class HexDocument extends Disposable implements vscode.CustomDocument {
 				unsavedEdits = JSON.parse(Buffer.from(jsonData).toString("utf-8"));
 			}
 		}
-		return new HexDocument(uri, fileData, fileSize, unsavedEdits, baseAddress);
+		return new HexDocument(uri, fileData, fileSize, unsavedEdits, baseAddress, tagsHandler);
 	}
 
 	private readonly _uri: vscode.Uri;
@@ -80,6 +82,7 @@ export class HexDocument extends Disposable implements vscode.CustomDocument {
 
 	// Last save time
 	public lastSave = Date.now();
+	public tagsHandler: TagsHandler;
 
 	public readonly searchProvider: SearchProvider;
 
@@ -88,7 +91,8 @@ export class HexDocument extends Disposable implements vscode.CustomDocument {
 		initialContent: Uint8Array,
 		fileSize: number,
 		unsavedEdits: HexDocumentEdit[][],
-		baseAddress: number
+		baseAddress: number,
+		tagsHandler: TagsHandler
 	) {
 		super();
 		this._uri = uri;
@@ -99,6 +103,7 @@ export class HexDocument extends Disposable implements vscode.CustomDocument {
 		// If we don't do this Array.from casting then both will reference the same array causing bad behavior
 		this._edits = Array.from(unsavedEdits);
 		this.searchProvider = new SearchProvider(this);
+		this.tagsHandler = tagsHandler;
 	}
 
 	public get uri(): vscode.Uri { return this._uri; }
