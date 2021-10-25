@@ -97,6 +97,10 @@ export class VirtualDocument {
 
 		// Render the fragments to the DOM
 		document.getElementById("hexaddr")?.appendChild(addrFragment);
+
+		// I must have found out where the wicked fuckery is happening
+		// and it seems to be just before this line.
+
 		document.getElementById("hexbody")?.appendChild(hexFragment);
 		document.getElementById("ascii")?.appendChild(asciiFragment);
 
