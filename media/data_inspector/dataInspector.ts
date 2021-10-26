@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { TagData } from "../editor/tagData";
 import { ByteData } from "./byteData";
 
 /**
@@ -37,7 +38,7 @@ export function clearDataInspector(): void {
  * @param {ByteData} byte_obj The ByteData object to represent on the data inspector
  * @param {boolean} littleEndian Wether the data inspector is in littleEndian or bigEndian mode
  */
-export function populateDataInspector(byte_obj: ByteData, littleEndian: boolean): void {
+export function populateDataInspector(byte_obj: ByteData, littleEndian: boolean, tags: TagData[]): void {
 	(document.getElementById("binary8") as HTMLInputElement).value = byte_obj.toBinary();
 	(document.getElementById("binary8") as HTMLInputElement).disabled = false;
 	for (let i = 0; i < 4; i++) {
@@ -69,6 +70,16 @@ export function populateDataInspector(byte_obj: ByteData, littleEndian: boolean)
 	const float64 = byte_obj.byteConverter(64, true, littleEndian, true);
 	(document.getElementById("float64") as HTMLInputElement).value = isNaN(Number(float64)) ? "End of File" : float64.toString();
 	(document.getElementById("float64") as HTMLInputElement).disabled = false;
+	(document.getElementById("offset") as HTMLInputElement).value = byte_obj.getOffset().toString();
+	(document.getElementById("offset") as HTMLInputElement).disabled = false;
+	(document.getElementById("selectedTagCaption") as HTMLInputElement).value = "None";
+	for(const tag of tags) {
+		if(byte_obj.getOffset() >= tag.from &&
+			byte_obj.getOffset() <= tag.to) {
+			(document.getElementById("selectedTagCaption") as HTMLInputElement).value = tag.caption;
+		}
+	}
+	(document.getElementById("offset") as HTMLInputElement).disabled = false;
 }
 
 // This is bound to the on change event for the select which decides to render big or little endian
@@ -76,7 +87,7 @@ export function populateDataInspector(byte_obj: ByteData, littleEndian: boolean)
  * @description Handles when the user changes the dropdown for whether they want little or big endianness
  * @param byte_obj The bytedata object representing the selected bytes
  */
-export function changeEndianness(byte_obj: ByteData): void {
+export function changeEndianness(byte_obj: ByteData, tags: TagData[]): void {
 	const littleEndian = (document.getElementById("endianness") as HTMLInputElement).value === "little";
-	populateDataInspector(byte_obj, littleEndian);
+	populateDataInspector(byte_obj, littleEndian, tags);
 }

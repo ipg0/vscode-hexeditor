@@ -305,9 +305,9 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 			case "addTagToFile":
 				// writing new tag set to file
 				const tagsInFile = await document.tagsHandler.retrieveTags();
-				tagsInFile.push(new TagData(message.body.from, message.body.to, message.body.color));
+				tagsInFile.push(new TagData(message.body.from, message.body.to, message.body.color, message.body.caption));
 				await document.tagsHandler.saveTags(tagsInFile);
-				panel.webview.postMessage({
+				await panel.webview.postMessage({
 					type: "addTagToFile", requestId: message.requestId, body: {
 					}
 				});

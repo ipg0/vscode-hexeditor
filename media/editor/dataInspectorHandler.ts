@@ -3,6 +3,7 @@
 
 import { ByteData } from "./byteData";
 import { messageHandler } from "./hexEdit";
+import { TagData } from "./tagData";
 
 // Class responsible for notifying the data inspector view of the necessary editor information
 export abstract class DataInspectorHandler {
@@ -20,10 +21,12 @@ export abstract class DataInspectorHandler {
 	 * @description Sends the selected bytes to the inspector view to update it
 	 * @param byte_obj The bytedata object representing the selected bytes
 	 */
-	public static updateInspector(byte_obj: ByteData): void {
+	public static updateInspector(byte_obj: ByteData, tags: TagData[]): void {
 		messageHandler.postMessage("dataInspector", {
 			method: "update",
 			byteData: byte_obj,
+			offset: byte_obj.getOffset(),
+			tags: tags
 		});
 	}
 }

@@ -56,6 +56,8 @@ function openAnyway(): void {
 					virtualHexDocument.undo(body.edits, body.fileSize);
 				} else if (body.type === "redo") {
 					virtualHexDocument.redo(body.edits, body.fileSize);
+				} else if (body.type === "redraw") {
+					virtualHexDocument.reRequestChunks();
 				} else {
 					virtualHexDocument.revert(body.fileSize);
 				}
@@ -74,6 +76,17 @@ function openAnyway(): void {
 					setTimeout(() => virtualHexDocument.focusElementWithGivenOffset(offset), 10);
 				});
 				return;
+			case "goToTag":
+				const caption = body.caption;
+				const tagFromOffset = virtualHexDocument.findTagByCaption(caption)?.from;
+				if(!tagFromOffset)
+					return;
+				virtualHexDocument.scrollDocumentToOffset(tagFromOffset).then(() => {
+					// Have to have a 10ms delay or the focus border doesn't set correctly
+					// My hypothesis is this is caused by the input box closing at the same time as we set focus
+					setTimeout(() => virtualHexDocument.focusElementWithGivenOffset(tagFromOffset), 10);
+				});
+				return;
 			case "addTag":
 				// figure out the selection boundaries
 				const selectionStart = virtualHexDocument.getSelectionStart();
@@ -82,7 +95,7 @@ function openAnyway(): void {
 				}
 				const selectionEnd = virtualHexDocument.getSelectionEnd();
 				// add tag to file
-				await messageHandler.postMessageWithResponse("addTagToFile", { from: selectionStart, to: selectionEnd, color: "blue" });
+				await messageHandler.postMessageWithResponse("addTagToFile", { from: selectionStart, to: selectionEnd, color: "blue", caption: body.caption });
 				return;
 			default:
 				messageHandler.incomingMessageHandler(e.data);

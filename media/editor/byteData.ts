@@ -4,14 +4,16 @@
 export class ByteData {
 	private decimal: number;
 	private adjacentBytes: ByteData[];
+	public offset: number;
 
 	/**
 	 * @description Creates a ByteData object which acts as the datalayer for a single hex value
 	 * @param uint8num The 8bit number from the file to be represented
 	 */
-	constructor(uint8num: number) {
+	constructor(uint8num: number, offset = 0) {
 		this.decimal = uint8num;
 		this.adjacentBytes = [];
+		this.offset = offset;
 	}
 
 	/**
@@ -55,5 +57,9 @@ export class ByteData {
 		// We iterate through the string and immediately reutrn the first character
 		for (const char of utf8) return char;
 		return utf8;
+	}
+	
+	getOffset(): number {
+		return this.offset;
 	}
 }

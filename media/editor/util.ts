@@ -152,13 +152,13 @@ export function pad(number: string, width: number): string {
  * @returns {ByteData | undefined} The ByteData object or undefined if elements was malformed or empty
  */
 export function retrieveSelectedByteObject(elements: HTMLCollectionOf<Element>): ByteData | undefined {
-	for (const element of Array.from(elements)) {
+	for (const [index, element] of Array.from(elements).entries()) {
 		if (element.parentElement && element.classList.contains("hex")) {
-			const byte_object = new ByteData(parseInt(element.innerHTML, 16));
+			const byte_object = new ByteData(parseInt(element.innerHTML, 16), index);
 			let current_element = element.nextElementSibling || element.parentElement.nextElementSibling?.children[0];
 			for (let i = 0; i < 7; i++) {
 				if (!current_element || current_element.innerHTML === "+") break;
-				byte_object.addAdjacentByte(new ByteData(parseInt(current_element.innerHTML, 16)));
+				byte_object.addAdjacentByte(new ByteData(parseInt(current_element.innerHTML, 16), index));
 				current_element = current_element.nextElementSibling || current_element.parentElement?.nextElementSibling?.children[0];
 			}
 			return byte_object;

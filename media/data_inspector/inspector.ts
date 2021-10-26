@@ -2,11 +2,13 @@
 // Licensed under the MIT license.
 
 import { ByteData } from "./byteData";
+import { TagData } from "../editor/tagData";
 import { changeEndianness, clearDataInspector, populateDataInspector } from "./dataInspector";
 
 declare const acquireVsCodeApi: any;
 export const vscode = acquireVsCodeApi();
 let currentByteData: ByteData;
+let tags: TagData[];
 
 
 
@@ -20,11 +22,15 @@ let currentByteData: ByteData;
 			case "update":
 				if (e.data.byteData)
 					currentByteData = ByteData.constructFromMessage(e.data.byteData);
-				populateDataInspector(currentByteData, (document.getElementById("endianness") as HTMLSelectElement).value === "little");
+				tags = e.data.tags;
+				populateDataInspector(currentByteData, (document.getElementById("endianness") as HTMLSelectElement).value === "little", e.data.tags);
 				return;
 			case "clear":
 				clearDataInspector();
 				return;
+			case "caption":
+				
+				return; 
 		}
 	});
 
@@ -34,5 +40,5 @@ let currentByteData: ByteData;
 })();
 
 // Bind an event listener to detect when the user changes the endinaness
-document.getElementById("endianness")?.addEventListener("change", () => changeEndianness(currentByteData));
+document.getElementById("endianness")?.addEventListener("change", () => changeEndianness(currentByteData, tags));
 

@@ -36,17 +36,27 @@ export function activate(context: vscode.ExtensionContext): void {
 			HexEditorProvider.currentWebview.postMessage({ type: "goToOffset", body: { offset } });
 		}
 	});
+
+	const goToTagCommand = vscode.commands.registerCommand("hexEditor.goToTag", async () => {
+		const caption = await vscode.window.showInputBox({ placeHolder: "Tag" });
+		if (caption && HexEditorProvider.currentWebview) {
+			HexEditorProvider.currentWebview.postMessage({ type: "goToTag", body: { caption } });
+		}
+	});
+
 	const addTagCommand = vscode.commands.registerCommand("hexEditor.addTag", async () => {
-		// TODO: ask for caption, ask to pick color
+		// TODO: ask to pick color
+		const caption = await vscode.window.showInputBox({ placeHolder: "Tag Caption" });
 		if(HexEditorProvider.currentWebview) {
-			HexEditorProvider.currentWebview.postMessage({ type: "addTag" });
+			HexEditorProvider.currentWebview.postMessage({ type: "addTag", body: { caption: caption } });
 		}
 	});
 	context.subscriptions.push(goToOffsetCommand);
 	context.subscriptions.push(openWithCommand);
 	context.subscriptions.push(telemetryReporter);
 	context.subscriptions.push(addTagCommand);
-	// TODO: "remove tag" command, captions, show captions on hover / select / in inspector
+	context.subscriptions.push(goToTagCommand);
+	// TODO: "remove tag" command, go to tag
 	context.subscriptions.push(HexEditorProvider.register(context, telemetryReporter, dataInspectorProvider));
 }
 

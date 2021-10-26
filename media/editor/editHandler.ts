@@ -133,7 +133,7 @@ export class EditHandler {
 		// The way the DOM is constructed the ascii element will always be the second one
 		const ascii = getElementsWithGivenOffset(offset)[1];
 		ascii.classList.remove("add-cell");
-		updateAsciiValue(new ByteData(parseInt(hexValue, 16)), ascii);
+		updateAsciiValue(new ByteData(parseInt(hexValue, 16), offset), ascii);
 		ascii.classList.add("edited");
 	}
 
@@ -234,7 +234,7 @@ export class EditHandler {
 			}
 			elements[0].innerText = edit.oldValue.toString(16).toUpperCase();
 			elements[0].innerText = elements[0].innerText.length == 2 ? elements[0].innerText : `0${elements[0].innerText}`;
-			updateAsciiValue(new ByteData(edit.oldValue), elements[1]);
+			updateAsciiValue(new ByteData(edit.oldValue, edit.offset), elements[1]);
 			virtualHexDocument.focusElementWithGivenOffset(edit.offset);
 		}
 	}
@@ -260,7 +260,7 @@ export class EditHandler {
 			}
 			elements[0].innerText = edit.newValue.toString(16).toUpperCase();
 			elements[0].innerText = elements[0].innerText.length == 2 ? elements[0].innerText : `0${elements[0].innerText}`;
-			updateAsciiValue(new ByteData(edit.newValue), elements[1]);
+			updateAsciiValue(new ByteData(edit.newValue, edit.offset), elements[1]);
 			// If no add cells are left we need to add more as this means we just replaced the end
 			if (document.getElementsByClassName("add-cell").length === 0 && edit.oldValue === undefined) {
 				// We are going to estimate the filesize and it will be resynced at the end if wrong

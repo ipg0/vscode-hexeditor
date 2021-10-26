@@ -85,6 +85,10 @@
       {
         "command": "hexEditor.addTag",
         "title": "Hex Editor: Add Tag At Selection"
+      },
+      {
+        "command": "hexEditor.goToTag",
+        "title": "Hex Editor: Go To Tag"
       }
     ],
     "viewsContainers": {

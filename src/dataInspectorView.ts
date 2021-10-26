@@ -101,6 +101,12 @@ export class DataInspectorView implements vscode.WebviewViewProvider {
               <div id="data-inspector">
                 <div class="grid-container">
                   <div class="grid-item">
+                    <label for="offset">Offset</label>
+                  </div>
+                  <div class="grid-item">
+                    <input type="text" autocomplete="off" spellcheck="off" id="offset" readonly/>
+                  </div>
+                  <div class="grid-item">
                     <label for="binary8">8 bit Binary</label>
                   </div>
                   <div class="grid-item">
@@ -189,6 +195,12 @@ export class DataInspectorView implements vscode.WebviewViewProvider {
                   </div>
                   <div class="grid-item">
                     <input type="text" autocomplete="off" spellcheck="off" id="float64" readonly/>
+                  </div>
+                  <div class="grid-item">
+                    <label for="selectedTagCaption">Tag</label>
+                  </div>
+                  <div class="grid-item">
+                    <input type="text" autocomplete="off" spellcheck="off" id="selectedTagCaption" readonly/>
                   </div>
                   <div class="grid-item endian-select">
                     <label for="endianness">Endianness</label>

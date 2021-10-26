@@ -33,12 +33,13 @@ export class VirtualDocument {
 	private readonly searchHandler: SearchHandler;
 	private rows: Map<string, HTMLDivElement>[];
 	private readonly editorContainer: HTMLElement;
-
+	private tags: TagData[];
 	/**
 	 * @description Constructs a VirtualDocument for a file of a given size. Also handles the initial DOM layout
 	 * @param {number} fileSize The size, in bytes, of the file which is being displayed
 	 */
 	constructor(fileSize: number, editorFontSize: number, baseAddress = 0) {
+		this.tags = [];
 		this.fileSize = fileSize;
 		this.baseAddress = baseAddress;
 		this.editHandler = new EditHandler();
@@ -78,6 +79,7 @@ export class VirtualDocument {
 	 * @param {VirtualizedPacket[]} newPackets the packets which will be rendered
 	 */
 	public render(newPackets: VirtualizedPacket[], tags: TagData[]): void {
+		this.tags = tags;
 		let rowData: VirtualizedPacket[] = [];
 		const addrFragment = document.createDocumentFragment();
 		const hexFragment = document.createDocumentFragment();
@@ -286,9 +288,7 @@ export class VirtualDocument {
 		for(let i = 0; i < tags.length; i++) {
 			if(tags[i].from <= packet.offset &&
 				tags[i].to >= packet.offset) {
-					hex_element.style.backgroundColor = tags[i].color; // this is not optimized yet
-					if(tags[i].to == packet.offset)
-						tags.splice(i, 1);
+					hex_element.style.color = tags[i].color; // this is not optimized yet
 					break;
 			}
 		}
@@ -316,7 +316,8 @@ export class VirtualDocument {
 		for(let i = 0; i < tags.length; i++) {
 			if(tags[i].from <= packet.offset &&
 				tags[i].to >= packet.offset) {
-					ascii_element.style.backgroundColor = tags[i].color; // this is not optimized yet
+					ascii_element.style.color = tags[i].color; // this is not optimized yet
+					break;
 			}
 		}
 		// If the offset is greater than or equal to fileSize that's our placeholder so it's just a + symbol to signal you can type and add bytes there
@@ -572,7 +573,8 @@ export class VirtualDocument {
 		if (offset !== undefined) {
 			const elements = getElementsWithGivenOffset(offset);
 			const byte_obj = retrieveSelectedByteObject(elements)!;
-			DataInspectorHandler.updateInspector(byte_obj);
+			byte_obj.offset = offset;
+			DataInspectorHandler.updateInspector(byte_obj, this.tags);
 		}
 	}
 
@@ -639,7 +641,7 @@ export class VirtualDocument {
 		// This will start a new row
 		const packet: VirtualizedPacket = {
 			offset: this.fileSize,
-			data: new ByteData(0)
+			data: new ByteData(0, this.fileSize)
 		};
 		if (this.fileSize % 16 === 0) {
 			this.render([packet], []);
@@ -742,5 +744,14 @@ export class VirtualDocument {
 	 */
 	public async scrollDocumentToOffset(offset: number, force?: boolean): Promise<void[]> {
 		return this.scrollBarHandler.scrollToOffset(offset, force);
+	}
+
+	public findTagByCaption(caption: string): TagData | undefined {
+		const tagArray = this.tags.filter(cur => {
+			return cur.caption == caption;
+		});
+		if(tagArray.length == 0)
+			return undefined;
+		return tagArray[0];
 	}
 }

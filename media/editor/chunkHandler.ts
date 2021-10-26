@@ -127,13 +127,13 @@ export class ChunkHandler {
 			}
 			packets.push({
 				offset: i + offset,
-				data: new ByteData(data[i])
+				data: new ByteData(data[i], offset)
 			});
 			// At the very end we want the plus cell, so we add a dummy packet that is greater than the filesize
 			if (i + offset + 1 === virtualHexDocument.documentSize) {
 				packets.push({
 					offset: i + offset + 1,
-					data: new ByteData(0)
+					data: new ByteData(0, offset)
 				});
 			}
 		}
@@ -141,7 +141,7 @@ export class ChunkHandler {
 		if (data.length === 0 && fileSize === 0) {
 			packets.push({
 				offset: 0,
-				data: new ByteData(0)
+				data: new ByteData(0, offset)
 			});
 		}
 		virtualHexDocument.render(packets, tags);

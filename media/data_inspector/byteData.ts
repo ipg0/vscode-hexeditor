@@ -4,12 +4,14 @@
 interface ByteDataMessage {
 	decimal: number | null;
 	adjacentBytes: ByteDataMessage[];
+	offset: number;
 }
 
 export class ByteData {
 
 	private decimal: number;
 	private adjacentBytes: ByteData[];
+	private offset: number;
 
 	/**
 	 * @description Constructs a bytedata object from a message sent over by the editor
@@ -17,9 +19,9 @@ export class ByteData {
 	 */
 	public static constructFromMessage(message: ByteDataMessage): ByteData {
 		// The message protocol converts NaN to null so we convert it back here
-		const byteObj = new ByteData(message.decimal !== null ? message.decimal : NaN);
+		const byteObj = new ByteData(message.decimal !== null ? message.decimal : NaN, message.offset);
 		for (const adjacentBytes of message.adjacentBytes) {
-			const current = new ByteData(adjacentBytes.decimal !== null ? adjacentBytes.decimal : NaN);
+			const current = new ByteData(adjacentBytes.decimal !== null ? adjacentBytes.decimal : NaN, message.offset);
 			byteObj.addAdjacentByte(current);
 		}
 		return byteObj;
@@ -29,9 +31,10 @@ export class ByteData {
 	 * @description Creates a ByteData object which acts as the datalayer for a single hex value
 	 * @param uint8num The 8bit number from the file to be represented
 	 */
-	constructor(uint8num: number) {
+	constructor(uint8num: number, offset: number) {
 		this.decimal = uint8num;
 		this.adjacentBytes = [];
+		this.offset = offset;
 	}
 
 	/**
@@ -156,5 +159,9 @@ export class ByteData {
 			return this.decimal;
 		}
 		return NaN;
+	}
+
+	getOffset(): number {
+		return this.offset;
 	}
 }
