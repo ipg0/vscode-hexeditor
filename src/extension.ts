@@ -38,7 +38,8 @@ export function activate(context: vscode.ExtensionContext): void {
 	});
 
 	const goToTagCommand = vscode.commands.registerCommand("hexEditor.goToTag", async () => {
-		const caption = await vscode.window.showInputBox({ placeHolder: "Tag" });
+		const caption = await vscode.window.showQuickPick(HexEditorProvider.globalTags.map(tag => tag.caption),
+			{ placeHolder: "Select a tag" });
 		if (caption && HexEditorProvider.currentWebview) {
 			HexEditorProvider.currentWebview.postMessage({ type: "goToTag", body: { caption } });
 		}
@@ -46,9 +47,20 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	const addTagCommand = vscode.commands.registerCommand("hexEditor.addTag", async () => {
 		// TODO: ask to pick color
-		const caption = await vscode.window.showInputBox({ placeHolder: "Tag Caption" });
+		const caption = await vscode.window.showInputBox({ placeHolder: "Caption" });
+		const color = await vscode.window.showQuickPick([
+			"red",
+			"orange",
+			"yellow",
+			"lime",
+			"green",
+			"aqua",
+			"blue",
+			"purple",
+			"pink"
+		], { canPickMany: false, placeHolder: "Pick a color" });
 		if(HexEditorProvider.currentWebview) {
-			HexEditorProvider.currentWebview.postMessage({ type: "addTag", body: { caption: caption } });
+			HexEditorProvider.currentWebview.postMessage({ type: "addTag", body: { color: color, caption: caption } });
 		}
 	});
 	context.subscriptions.push(goToOffsetCommand);
@@ -56,7 +68,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(telemetryReporter);
 	context.subscriptions.push(addTagCommand);
 	context.subscriptions.push(goToTagCommand);
-	// TODO: "remove tag" command, go to tag
+	// TODO: "remove tag" command
 	context.subscriptions.push(HexEditorProvider.register(context, telemetryReporter, dataInspectorProvider));
 }
 

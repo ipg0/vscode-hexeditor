@@ -26,7 +26,7 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 			}
 		);
 	}
-
+	public static globalTags: TagData[];
 	private static readonly viewType = "hexEditor.hexedit";
 	public static currentWebview?: vscode.Webview;
 
@@ -291,6 +291,7 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 						}
 					}
 				});
+				HexEditorProvider.globalTags = await document.tagsHandler.retrieveTags();
 				panel.webview.postMessage({
 					type: "packet", requestId: message.requestId, body: {
 						fileSize: document.filesize,
@@ -298,7 +299,7 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 						data: packet,
 						offset: request.initialOffset,
 						edits: edits,
-						tags: await document.tagsHandler.retrieveTags()
+						tags: HexEditorProvider.globalTags
 					}
 				});
 				return;

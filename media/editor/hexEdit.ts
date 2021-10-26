@@ -95,7 +95,7 @@ function openAnyway(): void {
 				}
 				const selectionEnd = virtualHexDocument.getSelectionEnd();
 				// add tag to file
-				await messageHandler.postMessageWithResponse("addTagToFile", { from: selectionStart, to: selectionEnd, color: "blue", caption: body.caption });
+				await messageHandler.postMessageWithResponse("addTagToFile", { from: selectionStart, to: selectionEnd, color: body.color, caption: body.caption });
 				return;
 			default:
 				messageHandler.incomingMessageHandler(e.data);
