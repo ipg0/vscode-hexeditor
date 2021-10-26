@@ -75,11 +75,13 @@ function openAnyway(): void {
 				});
 				return;
 			case "addTag":
+				// figure out the selection boundaries
 				const selectionStart = virtualHexDocument.getSelectionStart();
 				if(selectionStart == -1) {
 					return;
 				}
 				const selectionEnd = virtualHexDocument.getSelectionEnd();
+				// add tag to file
 				await messageHandler.postMessageWithResponse("addTagToFile", { from: selectionStart, to: selectionEnd, color: "blue" });
 				return;
 			default:

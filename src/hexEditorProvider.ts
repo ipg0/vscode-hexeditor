@@ -303,6 +303,7 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 				});
 				return;
 			case "addTagToFile":
+				// writing new tag set to file
 				const tagsInFile = await document.tagsHandler.retrieveTags();
 				tagsInFile.push(new TagData(message.body.from, message.body.to, message.body.color));
 				await document.tagsHandler.saveTags(tagsInFile);

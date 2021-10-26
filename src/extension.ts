@@ -37,6 +37,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		}
 	});
 	const addTagCommand = vscode.commands.registerCommand("hexEditor.addTag", async () => {
+		// TODO: ask for caption, ask to pick color
 		if(HexEditorProvider.currentWebview) {
 			HexEditorProvider.currentWebview.postMessage({ type: "addTag" });
 		}
@@ -45,6 +46,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(openWithCommand);
 	context.subscriptions.push(telemetryReporter);
 	context.subscriptions.push(addTagCommand);
+	// TODO: "remove tag" command, captions, show captions on hover / select / in inspector
 	context.subscriptions.push(HexEditorProvider.register(context, telemetryReporter, dataInspectorProvider));
 }
 
