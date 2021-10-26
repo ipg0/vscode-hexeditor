@@ -1,46 +1,32 @@
-A custom editor extension for Visual Studio Code which provides a hex editor for viewing and manipulating files in their raw hexadecimal representation.
+# Hex Editor with Tags
 
-## Features
+## This is a mod of the [Hex Editor](https://marketplace.visualstudio.com/items?itemName=ms-vscode.hexeditor) extension for reverse engineering and analyzing binary files with added **tag/annotation** support.
 
-- Opening files as hex
-- A data inspector for viewing the hex values as various different data types
-- Editing with undo, redo, copy, and paste support
-- Find and replace
+# Added functionality:
+- ## Add Tag command
+Adds a tag at selection, provides an option to select **color** and **caption** for the tag.
+- ## Go To Tag command
+Allows to select a tag from the list and jumps to its position.
+- ## Remove Tag command
+Allows to select a tag from the list and removes it from the file.
+- ## Remove Tag At Selection command
+If the selected byte is annotated by a tag, removes the tag.
+- ## Remove All Tags commands
+Removes all tags from the file.
+- ## Offset and Tag fields in Data Inspector
+This mod adds two more fields to the Data Inspector: Offset shows the offset of the selected byte, and Tag shows the caption of the tag, in which the selected byte is located, or "None" if the selected byte is not located inside any tag.
 
-![User opens a text file named release.txt and switches to the hex editor via command palette. The user then navigates and edits the document](https://raw.githubusercontent.com/microsoft/vscode-hexeditor/main/hex-editor.gif)
+<hr>
 
-## How to Use
+![Data Inspector with added fields](/assets/img/data_inspector.png)
 
-There are three ways to open a file in the hex editor:
+<hr>
 
-1. Right click a file -> Open With -> Hex Editor
-2. Trigger the command palette (<kbd>F1</kbd>) -> Open File using Hex Editor
-3. Trigger the command palette (<kbd>F1</kbd>) -> Reopen With -> Hex Editor
+- ## Colorful tags
+The mod allows to select a color for each tag for better visualization.
 
-The hex editor can be set as the default editor for certain file types by using the `workbench.editorAssociations` setting. For example, this would associate all files with extensions `.hex` and `.ini` to use the hex editor by default:
+<hr>
 
-```json
-"workbench.editorAssociations": [
-  {
-    "viewType": "hexEditor.hexedit",
-    "filenamePattern": "*.hex"
-  },
-  {
-    "viewType": "hexEditor.hexedit",
-    "filenamePattern": "*.ini"
-  }
-],
-```
+![Hex Editor with Tags](/assets/img/hex_editor.png)
 
-## Configuring the Data Inspector
-
-By default the data inspector has a dedicated activity bar entry on the left that appears when the hex editor is opened, causing the explorer or whatever side bar you had opened to be hidden. If preferred, the hex editor view can be dragged into another view if preferred by dragging the ⬡ icon onto one of the other views.
-
-This can be used in combination with the `hexeditor.dataInspector.autoReveal` setting to avoid revealing the side bar containing the data inspector all together.
-
-## Known Issues
-
-- Undoing a pending edit causes editor to get into a bad state [#161](https://github.com/microsoft/vscode-hexeditor/issues/161)
-- Searching in large files can become hit or miss [#149](https://github.com/microsoft/vscode-hexeditor/issues/149)
-
-To track all issues / file a new issue please go to the Github repo https://github.com/microsoft/vscode-hexeditor/issues
+<hr>

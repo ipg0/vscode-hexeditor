@@ -46,7 +46,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		if(color == "Custom CSS color") {
 			color = await vscode.window.showInputBox({ placeHolder: "CSS Color" });
 		}
-		if(HexEditorProvider.currentWebview) {
+		if(color && caption && HexEditorProvider.currentWebview) {
 			HexEditorProvider.currentWebview.postMessage({ type: "addTag", body: { color: color, caption: caption } });
 		}
 	});
@@ -59,7 +59,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	const removeTagCommand = vscode.commands.registerCommand("hexEditor.removeTag", async () => {
 		const caption = await vscode.window.showQuickPick(HexEditorProvider.globalTags.map(tag => tag.caption),
 			{ placeHolder: "Select a tag" });
-		if (HexEditorProvider.currentWebview) {
+		if (caption && HexEditorProvider.currentWebview) {
 			HexEditorProvider.currentWebview.postMessage({ type: "removeTag", body: { caption: caption } });
 		}
 	});
