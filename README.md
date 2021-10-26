@@ -30,3 +30,6 @@ The mod allows to select a color for each tag for better visualization.
 ![Hex Editor with Tags](/assets/img/hex_editor.png)
 
 <hr>
+
+- ## Easily portable tag data
+Tag metadata is stored in a [filename].tags file right next to the binary file itself. The editor can read externally provided tag metadata.
