@@ -3,7 +3,6 @@
 
 import * as vscode from "vscode";
 import { Disposable } from "./dispose";
-import TelemetryReporter from "vscode-extension-telemetry";
 import { SearchProvider } from "./searchProvider";
 import { FileSystemAdaptor } from "./fileSystemAdaptor";
 import { TagsHandler } from "./tagsHandler";
@@ -39,7 +38,6 @@ export class HexDocument extends Disposable implements vscode.CustomDocument {
 	static async create(
 		uri: vscode.Uri,
 		openContext: vscode.CustomDocumentOpenContext,
-		telemetryReporter: TelemetryReporter,
 	): Promise<HexDocument | PromiseLike<HexDocument>> {
 		const backupId = openContext.backupId;
 		// If we have a backup, read that. Otherwise read the resource from the workspace
@@ -53,7 +51,6 @@ export class HexDocument extends Disposable implements vscode.CustomDocument {
 				"fileSize" : { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true }
 			}
 		*/
-		telemetryReporter.sendTelemetryEvent("fileOpen", {}, { "fileSize": fileSize });
 		let fileData: Uint8Array;
 		const maxFileSize = (vscode.workspace.getConfiguration().get("hexeditor.maxFileSize") as number) * 1000000;
 		let unsavedEdits: HexDocumentEdit[][] = [];

@@ -6,7 +6,6 @@ import { HexDocument, HexDocumentEdit } from "./hexDocument";
 import { disposeAll } from "./dispose";
 import { WebviewCollection } from "./webViewCollection";
 import { getNonce } from "./util";
-import TelemetryReporter from "vscode-extension-telemetry";
 import { SearchResults } from "./searchRequest";
 import { DataInspectorView } from "./dataInspectorView";
 import { TagData } from "../media/editor/tagData";
@@ -17,10 +16,10 @@ interface PacketRequest {
 }
 
 export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocument> {
-	public static register(context: vscode.ExtensionContext, telemetryReporter: TelemetryReporter, dataInspectorView: DataInspectorView): vscode.Disposable {
+	public static register(context: vscode.ExtensionContext, dataInspectorView: DataInspectorView): vscode.Disposable {
 		return vscode.window.registerCustomEditorProvider(
 			HexEditorProvider.viewType,
-			new HexEditorProvider(context, telemetryReporter, dataInspectorView),
+			new HexEditorProvider(context, dataInspectorView),
 			{
 				supportsMultipleEditorsPerDocument: false
 			}
@@ -34,7 +33,6 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 
 	constructor(
 		private readonly _context: vscode.ExtensionContext,
-		private readonly _telemetryReporter: TelemetryReporter,
 		private readonly _dataInspectorView: DataInspectorView
 	) { }
 
@@ -43,7 +41,7 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 		openContext: vscode.CustomDocumentOpenContext,
 		_token: vscode.CancellationToken
 	): Promise<HexDocument> {
-		const document = await HexDocument.create(uri, openContext, this._telemetryReporter);
+		const document = await HexDocument.create(uri, openContext);
 		const listeners: vscode.Disposable[] = [];
 
 		listeners.push(document.onDidChange(e => {
@@ -317,6 +315,16 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 				});
 				// TODO: add callback to update render
 
+				return;
+			case "rewriteTagsInFile":
+				await document.tagsHandler.saveTags(message.body.tags);
+				await panel.webview.postMessage({
+					type: "addTagToFile", requestId: message.requestId, body: {
+					}
+				});
+				await panel.webview.postMessage({
+					type: "update", body: { type: "redraw" }
+				});
 				return;
 			case "edit":
 				document.makeEdit(message.body);

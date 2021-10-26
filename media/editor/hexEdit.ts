@@ -97,6 +97,34 @@ function openAnyway(): void {
 				// add tag to file
 				await messageHandler.postMessageWithResponse("addTagToFile", { from: selectionStart, to: selectionEnd, color: body.color, caption: body.caption });
 				return;
+			case "removeTagAtSelection":
+				const selection = virtualHexDocument.getSelectionStart();
+				const tagIndex = virtualHexDocument.tags.findIndex(tag => {
+					return tag.from <= selection && tag.to >= selection;
+				});
+				if(tagIndex == -1)
+					return;
+				virtualHexDocument.tags.splice(tagIndex, 1);
+				await messageHandler.postMessageWithResponse("rewriteTagsInFile", {
+					tags: virtualHexDocument.tags
+				});
+				return;
+			case "removeTag":
+				const dTagIndex = virtualHexDocument.tags.findIndex(tag => {
+					return tag.caption == body.caption;
+				});
+				if(dTagIndex == -1)
+					return;
+				virtualHexDocument.tags.splice(dTagIndex, 1);
+				await messageHandler.postMessageWithResponse("rewriteTagsInFile", {
+					tags: virtualHexDocument.tags
+				});
+				return;
+			case "removeAllTags":
+				await messageHandler.postMessageWithResponse("rewriteTagsInFile", {
+					tags: []
+				});
+				return;
 			default:
 				messageHandler.incomingMessageHandler(e.data);
 				return;

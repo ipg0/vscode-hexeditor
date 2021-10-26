@@ -2,30 +2,14 @@
 // Licensed under the MIT license.
 
 import * as vscode from "vscode";
-import TelemetryReporter from "vscode-extension-telemetry";
 import { DataInspectorView } from "./dataInspectorView";
 import { HexEditorProvider } from "./hexEditorProvider";
 import { openOffsetInput } from "./util";
 
-// Telemetry information
-const extensionID = "ms-vscode.hexeditor";
-
-let telemetryReporter: TelemetryReporter;
-
-function readConfigFromPackageJson(extensionID: string): { version: string; aiKey: string } {
-	const packageJSON = vscode.extensions.getExtension(extensionID)!.packageJSON;
-	return {
-		version: packageJSON.version,
-		aiKey: packageJSON.aiKey
-	};
-}
-
 export function activate(context: vscode.ExtensionContext): void {
 	// Register the data inspector as a separate view on the side
 	const dataInspectorProvider = new DataInspectorView(context.extensionUri);
-	const configValues = readConfigFromPackageJson(extensionID);
 	context.subscriptions.push(vscode.window.registerWebviewViewProvider(DataInspectorView.viewType, dataInspectorProvider));
-	telemetryReporter = new TelemetryReporter(extensionID, configValues.version, configValues.aiKey);
 	const openWithCommand = vscode.commands.registerTextEditorCommand("hexEditor.openFile", (textEditor: vscode.TextEditor) => {
 		vscode.commands.executeCommand("vscode.openWith", textEditor.document.uri, "hexEditor.hexedit");
 	});
@@ -46,7 +30,6 @@ export function activate(context: vscode.ExtensionContext): void {
 	});
 
 	const addTagCommand = vscode.commands.registerCommand("hexEditor.addTag", async () => {
-		// TODO: ask to pick color
 		const caption = await vscode.window.showInputBox({ placeHolder: "Caption" });
 		let color = await vscode.window.showQuickPick([
 			"red",
@@ -67,15 +50,31 @@ export function activate(context: vscode.ExtensionContext): void {
 			HexEditorProvider.currentWebview.postMessage({ type: "addTag", body: { color: color, caption: caption } });
 		}
 	});
+
+	const removeTagAtSelectionCommand = vscode.commands.registerCommand("hexEditor.removeTagAtSelection", async () => {
+		if (HexEditorProvider.currentWebview) {
+			HexEditorProvider.currentWebview.postMessage({ type: "removeTagAtSelection" });
+		}
+	});
+	const removeTagCommand = vscode.commands.registerCommand("hexEditor.removeTag", async () => {
+		const caption = await vscode.window.showQuickPick(HexEditorProvider.globalTags.map(tag => tag.caption),
+			{ placeHolder: "Select a tag" });
+		if (HexEditorProvider.currentWebview) {
+			HexEditorProvider.currentWebview.postMessage({ type: "removeTag", body: { caption: caption } });
+		}
+	});
+	const removeAllTagsCommand = vscode.commands.registerCommand("hexEditor.removeAllTags", async () => {
+		if (HexEditorProvider.currentWebview) {
+			HexEditorProvider.currentWebview.postMessage({ type: "removeAllTags", body: {} });
+		}
+	});
+
 	context.subscriptions.push(goToOffsetCommand);
 	context.subscriptions.push(openWithCommand);
-	context.subscriptions.push(telemetryReporter);
 	context.subscriptions.push(addTagCommand);
 	context.subscriptions.push(goToTagCommand);
-	// TODO: "remove tag" command
-	context.subscriptions.push(HexEditorProvider.register(context, telemetryReporter, dataInspectorProvider));
-}
-
-export function deactivate(): void {
-	telemetryReporter.dispose();
+	context.subscriptions.push(removeTagAtSelectionCommand);
+	context.subscriptions.push(removeTagCommand);
+	context.subscriptions.push(removeAllTagsCommand);
+	context.subscriptions.push(HexEditorProvider.register(context, dataInspectorProvider));
 }

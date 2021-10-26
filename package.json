@@ -1,16 +1,15 @@
 {
   "name": "hexeditor",
-  "displayName": "Hex Editor",
-  "description": "Allows viewing and editing files in a hex editor",
+  "displayName": "Hex Editor with Tags",
+  "description": "A mod of the Hex Editor by Microsoft with added tag support",
   "version": "1.8.2",
-  "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
-  "publisher": "ms-vscode",
+  "publisher": "notblank00",
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/vscode-hexeditor"
+    "url": "https://github.com/notblank00/vscode-hexeditor"
   },
   "bugs": {
-    "url": "https://github.com/microsoft/vscode-hexeditor/issues"
+    "url": "https://github.com/notblank00/vscode-hexeditor/issues"
   },
   "license": "MIT",
   "engines": {
@@ -89,6 +88,18 @@
       {
         "command": "hexEditor.goToTag",
         "title": "Hex Editor: Go To Tag"
+      },
+      {
+        "command": "hexEditor.removeTag",
+        "title": "Hex Editor: Remove Tag"
+      },
+      {
+        "command": "hexEditor.removeTagAtSelection",
+        "title": "Hex Editor: Remove Tag At Selection"
+      },
+      {
+        "command": "hexEditor.removeAllTags",
+        "title": "Hex Editor: Remove All Tags"
       }
     ],
     "viewsContainers": {

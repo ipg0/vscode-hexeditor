@@ -33,7 +33,7 @@ export class VirtualDocument {
 	private readonly searchHandler: SearchHandler;
 	private rows: Map<string, HTMLDivElement>[];
 	private readonly editorContainer: HTMLElement;
-	private tags: TagData[];
+	public tags: TagData[];
 	/**
 	 * @description Constructs a VirtualDocument for a file of a given size. Also handles the initial DOM layout
 	 * @param {number} fileSize The size, in bytes, of the file which is being displayed
