@@ -9,7 +9,7 @@ import { getNonce } from "./util";
 import TelemetryReporter from "vscode-extension-telemetry";
 import { SearchResults } from "./searchRequest";
 import { DataInspectorView } from "./dataInspectorView";
-import { TagsHandler } from "./tagsHandler";
+import { TagData } from "../media/editor/tagData";
 
 interface PacketRequest {
 	initialOffset: number;
@@ -301,6 +301,20 @@ export class HexEditorProvider implements vscode.CustomEditorProvider<HexDocumen
 						tags: await document.tagsHandler.retrieveTags()
 					}
 				});
+				return;
+			case "addTagToFile":
+				const tagsInFile = await document.tagsHandler.retrieveTags();
+				tagsInFile.push(new TagData(message.body.from, message.body.to, message.body.color));
+				await document.tagsHandler.saveTags(tagsInFile);
+				panel.webview.postMessage({
+					type: "addTagToFile", requestId: message.requestId, body: {
+					}
+				});
+				await panel.webview.postMessage({
+					type: "update", body: { type: "redraw" }
+				});
+				// TODO: add callback to update render
+
 				return;
 			case "edit":
 				document.makeEdit(message.body);

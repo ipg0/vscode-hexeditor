@@ -74,6 +74,14 @@ function openAnyway(): void {
 					setTimeout(() => virtualHexDocument.focusElementWithGivenOffset(offset), 10);
 				});
 				return;
+			case "addTag":
+				const selectionStart = virtualHexDocument.getSelectionStart();
+				if(selectionStart == -1) {
+					return;
+				}
+				const selectionEnd = virtualHexDocument.getSelectionEnd();
+				await messageHandler.postMessageWithResponse("addTagToFile", { from: selectionStart, to: selectionEnd, color: "blue" });
+				return;
 			default:
 				messageHandler.incomingMessageHandler(e.data);
 				return;

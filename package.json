@@ -81,6 +81,10 @@
       {
         "command": "hexEditor.goToOffset",
         "title": "Hex Editor: Go To Offset"
+      },
+      {
+        "command": "hexEditor.addTag",
+        "title": "Hex Editor: Add Tag At Selection"
       }
     ],
     "viewsContainers": {

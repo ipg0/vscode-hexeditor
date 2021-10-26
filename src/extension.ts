@@ -36,9 +36,15 @@ export function activate(context: vscode.ExtensionContext): void {
 			HexEditorProvider.currentWebview.postMessage({ type: "goToOffset", body: { offset } });
 		}
 	});
+	const addTagCommand = vscode.commands.registerCommand("hexEditor.addTag", async () => {
+		if(HexEditorProvider.currentWebview) {
+			HexEditorProvider.currentWebview.postMessage({ type: "addTag" });
+		}
+	});
 	context.subscriptions.push(goToOffsetCommand);
 	context.subscriptions.push(openWithCommand);
 	context.subscriptions.push(telemetryReporter);
+	context.subscriptions.push(addTagCommand);
 	context.subscriptions.push(HexEditorProvider.register(context, telemetryReporter, dataInspectorProvider));
 }
 

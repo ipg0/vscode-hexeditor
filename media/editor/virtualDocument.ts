@@ -287,6 +287,9 @@ export class VirtualDocument {
 			if(tags[i].from <= packet.offset &&
 				tags[i].to >= packet.offset) {
 					hex_element.style.backgroundColor = tags[i].color; // this is not optimized yet
+					if(tags[i].to == packet.offset)
+						tags.splice(i, 1);
+					break;
 			}
 		}
 		// If the offset is greater than or equal to fileSize that's our placeholder so it's just a + symbol to signal you can type and add bytes there
@@ -720,6 +723,16 @@ export class VirtualDocument {
 			chunkHandler.removeChunk(chunk);
 			await chunkHandler.requestMoreChunks(chunk);
 		}
+	}
+	public getSelectionStart(): number {
+		const selectionStart = this.selectHandler.getSelectionStart();
+		return typeof(selectionStart) !== "undefined" ? selectionStart : -1;
+	}
+
+	public getSelectionEnd(): number {
+		if(this.getSelectionStart() != -1)
+			return this.getSelectionStart() + this.selectHandler.getSelected().length - 1;
+		return -1;
 	}
 
 	/**
