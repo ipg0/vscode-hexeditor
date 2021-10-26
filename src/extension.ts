@@ -48,7 +48,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	const addTagCommand = vscode.commands.registerCommand("hexEditor.addTag", async () => {
 		// TODO: ask to pick color
 		const caption = await vscode.window.showInputBox({ placeHolder: "Caption" });
-		const color = await vscode.window.showQuickPick([
+		let color = await vscode.window.showQuickPick([
 			"red",
 			"orange",
 			"yellow",
@@ -57,8 +57,12 @@ export function activate(context: vscode.ExtensionContext): void {
 			"aqua",
 			"blue",
 			"purple",
-			"pink"
+			"pink",
+			"Custom CSS color"
 		], { canPickMany: false, placeHolder: "Pick a color" });
+		if(color == "Custom CSS color") {
+			color = await vscode.window.showInputBox({ placeHolder: "CSS Color" });
+		}
 		if(HexEditorProvider.currentWebview) {
 			HexEditorProvider.currentWebview.postMessage({ type: "addTag", body: { color: color, caption: caption } });
 		}
